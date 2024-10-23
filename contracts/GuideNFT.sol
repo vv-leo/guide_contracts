@@ -21,17 +21,31 @@ contract GuideNFT is ERC721 {
 
     //上架（没有的话创建）
     function listNFT(uint256 tokenId, uint256 price) public returns (uint256) {
+        // 确保调用者地址有效
         require(msg.sender != address(0), "Recipient address cannot be zero");
-        // 错误检查：确保价格合理（例如，不是负数）
+
+        // 错误检查：确保价格合理（非负数）
         require(price >= 0, "Price must be non-negative");
-        if(!isMinted[tokenId]){
+
+        // 如果未铸造，执行铸造操作
+        if (!isMinted[tokenId]) {
             _safeMint(msg.sender, tokenId);
             isMinted[tokenId] = true;
             nftOwners[tokenId] = msg.sender;
         }
+
+        // 确保 NFT 未被上架
+        require(!isListed[tokenId], "NFT is already listed");
+        require(isMinted[tokenId], "NFT is not minted");
+
+        // 设置 NFT 为已上架状态，并记录价格信息
         isListed[tokenId] = true;
         _tokenInfos[tokenId] = NFTInfo(price);
+
+        // 触发事件以通知外部监听
         emit NFTListed(msg.sender, tokenId, price);
+
+        // 返回 tokenId 以供后续使用
         return tokenId;
     }
 

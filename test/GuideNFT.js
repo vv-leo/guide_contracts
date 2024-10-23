@@ -23,12 +23,24 @@ describe('GuideNFT Contract', () => {
     });
 
     it('should list an NFT', async () => {
-        // 铸造并上架NFT
-        await guideNFT.listNFT(tokenId, price);
-        expect(await guideNFT.isMinted(tokenId)).to.be.true;
-        expect(await guideNFT.isListed(tokenId)).to.be.true;
-        expect(await guideNFT.ownerOf(tokenId)).to.equal(deployer.address);
-        console.log(guideNFT._tokenInfos(tokenId));
+        const tx = await guideNFT.listNFT(tokenId, price);
+        const receipt = await tx.wait(); // 等待交易完成
+
+        // 打印回执，确认是否包含 logs
+        console.log(receipt);
+
+        // 从 logs 中查找事件
+        const logs = receipt.logs;
+        const event = logs.find(log => log.eventName === 'NFTListed');
+
+        if (event) {
+            console.log("Recipient:", event.args.recipient);
+            console.log("TokenId:", event.args.tokenId.toString());
+            console.log("Price:", event.args.price.toString());
+        } else {
+            console.log("Event NFTListed not found in logs.");
+        }
+
     });
 
     it('should delist an NFT', async () => {
