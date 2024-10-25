@@ -33,6 +33,8 @@ contract GuideNFT is ERC721 {
             _safeMint(msg.sender, _tokenId);
             _tokenInfos[_tokenId].isMinted = true;
             _tokenInfos[_tokenId].owner = msg.sender;
+        }else{
+            require(_tokenInfos[_tokenId].owner == msg.sender, "Not the owner of this NFT");
         }
 
         // 确保 NFT 未被上架
